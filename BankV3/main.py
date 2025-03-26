@@ -1,0 +1,66 @@
+from methods import user
+import datetime
+
+menu = """
+
+[1] Deposit
+[2] Loot
+[3] extract
+[4] Create User
+[5] Logout
+[6] Exit
+
+=>"""
+
+LOOT_LIMIT = 500
+MAX_LOOT_NUMBER = 3
+users = []
+selected = None
+
+while True:
+    if users == []:
+        print('\nAny user in located, please create at least one')
+        login = user()
+        users.append(login)
+    if selected == None:
+        print('Please select one user:')
+        for n in range(len(users)):
+            print(f'[{n}] {users[n].name}')
+        while selected == None:
+            try:
+                number = input()
+                selected = users[int(number)]
+            except:
+                print('please input one digit')
+                
+    option = input(menu)
+
+    if option == '1':
+        if selected.transactionNumber < 10:
+            balance, extract = selected.deposit()
+            print(f'Atual balance: {balance}')
+        else:
+            print('You reached the limit of day')
+
+    elif option == '2':
+        if selected.transactionNumber < 10:
+            balance, extract = selected.loot(LOOT_LIMIT, MAX_LOOT_NUMBER)
+            print(f'Atual balance: {balance}')
+        else:
+            print('You reached the limit of day')
+
+    elif option == '3':
+        selected.lookExtract()
+
+    elif option == '4':
+        login = user()
+        users.append(login)
+
+    elif option == '5':
+        selected = None
+
+    elif option == '6':
+        break
+
+    else:
+        print('Invalid Operation')
