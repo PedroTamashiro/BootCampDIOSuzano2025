@@ -19,6 +19,8 @@ class user:
         self.transactionNumber = 0
         self.lootNumber = 0
         self.lastTransaction = self.currentTransaction - timedelta(days=1)
+        self.account = []
+        self.account = self.get_account()
 
     def get_name(self):
         while True:
@@ -70,7 +72,7 @@ class user:
             self.transactionNumber = 0
         return self
         
-    def deposit (self):
+    def deposit(self):
         self.getCurrentTime()
         self.confLimit()
         deposit = float(input('Input value: '))
@@ -83,7 +85,7 @@ class user:
             print('Invalid Input')
         return self.balance, self.extract
 
-    def loot (self, limitLootValue: int, limitLoot: int):
+    def loot(self, limitLootValue: int, limitLoot: int):
         self.getCurrentTime()
         self.confLimit()
         loot = float(input('Input value: '))
@@ -105,7 +107,7 @@ class user:
             
         return self.balance, self.extract
 
-    def lookExtract (self):
+    def lookExtract(self):
         print(f'You have {len(self.extract)} itens in extract:')
         if len(self.extract) > 0:
             for n in range(len(self.extract)):
@@ -113,3 +115,8 @@ class user:
         else:
             print('Any move registred')
         print(f'\nAtual balance: R${self.balance:.2f}')
+
+class account:
+    def __init__(self):
+        self.agency = self.get_agency()
+        self.number = self.get_number()
