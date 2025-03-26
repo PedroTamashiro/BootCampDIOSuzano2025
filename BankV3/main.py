@@ -53,7 +53,14 @@ while True:
         selected.lookExtract()
 
     elif option == '4':
-        login = user()
+        problem = True
+        while problem == True:
+            login = user()
+            for n in range(len(users)):
+                if users[n].cpf == login.cpf:
+                    problem = True
+                    print('CPF already registered')
+                    break
         users.append(login)
 
     elif option == '5':
