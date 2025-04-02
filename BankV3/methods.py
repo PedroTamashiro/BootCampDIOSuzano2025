@@ -5,22 +5,22 @@ import re
 
 REGEX_ADRESS = '^[A-Za-záàãâäéèêëíìîïóòôöõúùûüçÇ\s]+-\s\d+\s-\s\d{5}-\d{3}\s-\s[A-Za-záàãâäéèêëíìîïóòôöõúùûüçÇ\s]+\/[A-Za-z]{2}$'
 
-class user:
-    def __init__(self):
+class User:
+    def __init__(self, number: int):
         self.name = self.get_name()
-        self.bornDate = self.get_born_date()
+        self.borndate = self.get_born_date()
         self.cpf = self.get_cpf()
         self.adress = self.get_address()
         self.balance = 0
         self.extract = []
         self.lat = -23.5489
         self.lng = -46.6388
-        self.currentTransaction = datetime.now()
-        self.transactionNumber = 0
-        self.lootNumber = 0
-        self.lastTransaction = self.currentTransaction - timedelta(days=1)
-        self.account = []
-        self.account = self.get_account()
+        self.current_transaction = datetime.now()
+        self.transaction_number = 0
+        self.loot_number = 0
+        self.last_transaction = self.current_transaction - timedelta(days=1)
+        self.Accounts = []
+        self.create_account(number)
 
     def get_name(self):
         while True:
@@ -59,17 +59,17 @@ class user:
             else:
                 print("Invalid address format. Please follow the specified format.")
         
-    def getCurrentTime(self):
+    def get_current_time(self):
         timeZoneStr = TimezoneFinder().timezone_at(lat=self.lat, lng=self.lng)
         if timeZoneStr:
             timezone = pytz.timezone(timeZoneStr)
-            self.lastTransaction = self.currentTransaction
-            self.currentTransaction = datetime.now(timezone)
-            return self.currentTransaction
+            self.last_transaction = self.current_transaction
+            self.current_transaction = datetime.now(timezone)
+            return self.current_transaction
         
-    def confLimit(self):
-        if self.lastTransaction.day < self.currentTransaction.day:
-            self.transactionNumber = 0
+    def conf_limit(self):
+        if self.last_transaction.day < self.current_transaction.day:
+            self.transaction_number = 0
         return self
         
     def deposit(self):
@@ -78,9 +78,9 @@ class user:
         deposit = float(input('Input value: '))
         if deposit > 0:
             self.balance += deposit
-            extractText = f'deposited: R${deposit:.2f} - {self.currentTransaction}'
-            self.extract.append(extractText)
-            self.transactionNumber += 1
+            extract_text = f'deposited: R${deposit:.2f} - {self.current_transaction}'
+            self.extract.append(extract_text)
+            self.transaction_number += 1
         else:
             print('Invalid Input')
         return self.balance, self.extract
@@ -90,13 +90,13 @@ class user:
         self.confLimit()
         loot = float(input('Input value: '))
         if loot <= limitLootValue and loot > 0:
-            if self.lootNumber < limitLoot:
+            if self.loot_number < limitLoot:
                 self.balance -= loot
                 if self.balance > 0:
-                    extractText = f'Looted: R${loot:.2f} - {self.currentTransaction}'
-                    self.extract.append(extractText)
-                    self.lootNumber += 1
-                    self.transactionNumber += 1
+                    extract_text = f'Looted: R${loot:.2f} - {self.current_transaction}'
+                    self.extract.append(extract_text)
+                    self.loot_number += 1
+                    self.transaction_number += 1
                 else:
                     self.balance += loot
                     print("You haven't sufficient balance")
@@ -107,7 +107,7 @@ class user:
             
         return self.balance, self.extract
 
-    def lookExtract(self):
+    def look_extract(self):
         print(f'You have {len(self.extract)} itens in extract:')
         if len(self.extract) > 0:
             for n in range(len(self.extract)):
@@ -116,7 +116,12 @@ class user:
             print('Any move registred')
         print(f'\nAtual balance: R${self.balance:.2f}')
 
-class account:
-    def __init__(self):
-        self.agency = self.get_agency()
-        self.number = self.get_number()
+    def create_account(self, number: int):
+        account = Account(number, self.cpf)
+        self.Accounts.append(account)
+
+class Account:
+    def __init__(self, number: int, cpf: int):
+        self.agency = '0001'
+        self.number = number
+        self.cpf = cpf

@@ -1,4 +1,4 @@
-from methods import user
+from methods import User, Account
 import datetime
 
 menu = """
@@ -7,21 +7,25 @@ menu = """
 [2] Loot
 [3] extract
 [4] Create User
-[5] Logout
-[6] Exit
+[5] Create Account
+[6] Logout
+[7] Exit
 
 =>"""
 
 LOOT_LIMIT = 500
 MAX_LOOT_NUMBER = 3
 users = []
+Accounts = []
 selected = None
 
 while True:
     if users == []:
         print('\nAny user in located, please create at least one')
-        login = user()
+        login = User(len(Accounts) + 1)
         users.append(login)
+        Accounts.append(login.Accounts[-1])
+
     if selected == None:
         print('Please select one user:')
         for n in range(len(users)):
@@ -55,18 +59,24 @@ while True:
     elif option == '4':
         problem = True
         while problem == True:
-            login = user()
+            problem = False
+            login = User(len(Accounts) + 1)
             for n in range(len(users)):
                 if users[n].cpf == login.cpf:
                     problem = True
                     print('CPF already registered')
                     break
+            
         users.append(login)
 
     elif option == '5':
-        selected = None
+        login = Account(len(Accounts) + 1, selected)
+        Accounts.append(Account)
 
     elif option == '6':
+        selected = None
+        
+    elif option == '7':
         break
 
     else:
