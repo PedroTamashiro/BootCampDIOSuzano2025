@@ -13,8 +13,6 @@ menu = """
 
 =>"""
 
-LOOT_LIMIT = 500
-MAX_LOOT_NUMBER = 3
 users = []
 Accounts = []
 selected = None
