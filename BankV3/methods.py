@@ -6,159 +6,157 @@ from abc import ABC, abstractmethod
 
 REGEX_ADRESS = '^[A-Za-záàãâäéèêëíìîïóòôöõúùûüçÇ\s]+-\s\d+\s-\s\d{5}-\d{3}\s-\s[A-Za-záàãâäéèêëíìîïóòôöõúùûüçÇ\s]+\/[A-Za-z]{2}$'
 
+# ======================== ABSTRACT TRANSACTION ============================
 class Transaction(ABC):
-    def __init__(self):
-        pass
-    
     @abstractmethod
-    def register(Account):
-        pass
-    
-    @abstractmethod
-    def verifyNumber():
+    def register(self, account):
         pass
 
+    @abstractmethod
+    def verify_number(self):
+        pass
+
+# ======================== HISTORIC ============================
 class Historic:
     def __init__(self):
         self._register = []
-    
-    def add_transaction(self, transaction: Transaction):
-        today = datetime.today()
-        today = today.strftime('%d/%m/%Y - %H:%M:%S')
-        self._register.append(f'{transaction.__class__} -> {today} - {transaction}')
+
+    def add_transaction(self, transaction):
+        timestamp = datetime.now().strftime('%d/%m/%Y - %H:%M:%S')
+        self._register.append(f'{transaction.__class__.__name__} -> {timestamp} - R$ {transaction._value:.2f}')
 
     def show_historic(self):
         print('REGISTER:')
-        for n in range(len(self._register)):
-            print(self._register[n])
+        for reg in self._register:
+            print(reg)
 
+# ======================== ACCOUNT ============================
 class Account:
-    def __init__(self, accounts_list: list, client = None):
+    def __init__(self, accounts_list, client=None):
         self._balance = 0
         self._agency = '0001'
         self._number = self.verify_agency_number(accounts_list)
         self._client = client
         self._historic = Historic()
         
-    def verify_agency_number(accounts_list: list):
-        number = len(accounts_list) + 1
-        return number
+    def verify_agency_number(self, accounts_list):
+        return len(accounts_list) + 1
     
     def balance(self):
-        print(self._balance)
+        return f'Balance: R$ {self._balance:.2f}'
 
     def new_account(self, account_list):
-        if self._client == None:
+        if not self._client:
             print('Account without Client')
         else:
             new_account = Account(account_list, self._client)
             return new_account
         
-    def loot(self, value: float):
-        self.balance -= value
+    def loot(self, value):
+        self._balance -= value
 
-    def deposit(self, value: float):
-        self.balance += value
+    def deposit(self, value):
+        self._balance += value
 
+# ======================== DEPOSIT ============================
 class Deposit(Transaction):
     def __init__(self):
-        super().__init__()
-        self._value = self.verifyNumber()
-        
+        self._value = self.verify_number()
+
     def verify_number(self):
         try:
             value = float(input('Send value to deposit: '))
             if value <= 0:
-                raise
+                raise ValueError
             return value
         except:
-            print('invalid value')
-            self.verifyNumber()
-            
-    def register(self, account: Account):
+            print('Invalid value')
+            return self.verify_number()
+
+    def register(self, account):
         account._historic.add_transaction(self)
         account.deposit(self._value)
-        
-class Loot(Transaction):
+        print('Deposit successful')
+
+# ======================== WITHDRAW ============================
+class Withdraw(Transaction):
     def __init__(self):
-        super().__init__()
-        self._value = self.verifyNumber()
-        
-    def verifyNumber(self):
+        self._value = self.verify_number()
+
+    def verify_number(self):
         try:
-            value = float(input('Send value to loot: '))
+            value = float(input('Send value to withdraw: '))
             if value <= 0:
-                raise
+                raise ValueError
             return value
         except:
-            print('invalid value')
-            self.verifyNumber()
-            
-    def register(self, account: Account):
-        if account._balance - self._value >= 0:
+            print('Invalid value')
+            return self.verify_number()
+
+    def register(self, account):
+        if account._balance >= self._value:
             account._historic.add_transaction(self)
             account.loot(self._value)
+            print('Withdraw successful')
         else:
-            print("You haven't sufficient balance")
+            print("You don't have sufficient balance.")
 
+# ======================== CLIENT ============================
 class Client:
     def __init__(self):
-        self._adress = self.get_address()
+        self._address = self.get_address()
         self._accounts = []
-        
+
     def get_address(self):
         while True:
-            adress = input('Please input your address in the format -> address - number - CEP - City/UF: ')
-            if re.match(REGEX_ADRESS, adress):
-                return adress
-            else:
-                print("Invalid address format. Please follow the specified format.")
-    
-    def realize_transaction(self, account: Account, transaction: Transaction):
+            address = input('Input your address (address - number - CEP - City/UF): ')
+            if re.match(REGEX_ADRESS, address):
+                return address
+            print("Invalid format. Example: Rua das Flores - 123 - 12345-678 - São Paulo/SP")
+
+    def realize_transaction(self, account, transaction):
         transaction.register(account)
 
-    def add_account(self, account: Account):
-        self.accounts.append(account)
-        account._agency = self
-        
-class current_account(Account):
-    def __init__(self, accounts_list: list, client: None):
+    def add_account(self, account):
+        self._accounts.append(account)
+
+# ======================== CURRENT ACCOUNT ============================
+class CurrentAccount(Account):
+    def __init__(self, accounts_list, client):
         super().__init__(accounts_list, client)
         self._limit = 500
         self._loot_limit = 3
 
-class fisic_person(Client):
+# ======================== FISIC PERSON ============================
+class FisicPerson(Client):
     def __init__(self):
         super().__init__()
-        self._cpf = self.get_Cpf()
-        self._name = self.get_Name()
-        self._BornDate = self.get_BornDate()
+        self._cpf = self.get_cpf()
+        self._name = self.get_name()
+        self._born_date = self.get_born_date()
 
     def get_name(self):
         while True:
-            name = input('Please input your complete Name: ')
-            if all(x.isalpha() or x.isspace() for x in name) and name:
+            name = input('Enter your full name: ')
+            if all(x.isalpha() or x.isspace() for x in name) and name.strip():
                 return name
-            else:
-                print("Invalid entry. Name should contain only letters and spaces.")
+            print("Invalid name. Use only letters and spaces.")
 
     def get_born_date(self):
         while True:
-            bornDate = input('Please input your born date in the format -> day/month/year: ')
+            date_str = input('Enter birth date (dd/mm/yyyy): ')
             try:
-                birth_date = datetime.strptime(bornDate, "%d/%m/%Y")
-                if birth_date > datetime.now():
+                date = datetime.strptime(date_str, "%d/%m/%Y")
+                if date > datetime.now():
                     print("Date cannot be in the future.")
                 else:
-                    return bornDate
+                    return date_str
             except ValueError:
-                print("Invalid date format. Please use day/month/year.")
+                print("Invalid format. Use dd/mm/yyyy.")
 
     def get_cpf(self):
         while True:
-            cpf = input('Please input your CPF number: ')
-            cpf = cpf.replace('.', '').replace('-', '')
-            if len(cpf) == 11 and cpf.isdigit():
+            cpf = input('Enter CPF (only numbers): ').replace('.', '').replace('-', '')
+            if cpf.isdigit() and len(cpf) == 11:
                 return cpf
-            else:
-                print("Invalid CPF. Ensure it has 11 digits without dots or hyphens.")
+            print("Invalid CPF. It must have 11 digits.")
